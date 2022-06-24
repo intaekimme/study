@@ -15,6 +15,8 @@ control + tab + 숫자 : 패널? 간 이동
 
 option + command + N : 인라인 변수화
 
+control + o : override method
+
 ------
 
 
@@ -114,8 +116,8 @@ Service에서는 Repository를 주입하기 마련인데 주입 방식에 3가�
 
    - ```java
      		private final MemberRepository memberRepository;
-     
-     		@Autowired
+       
+       		@Autowired
          public MemberService(MemberRepository memberRepository) {
              this.memberRepository = memberRepository;
          }
@@ -157,3 +159,28 @@ JUnit 테스트만 하려고 하는데 DB를 연결하고 이런 작업은 좀 �
 
 1. 메모리 DB를 이용하기 위해 test 폴더 내에도 resource 폴더를 생성한다.
 2. resource 폴더 내 application.yml 파일을 복제한다. -> main 폴더내 로직들이 실제 서비스 동작 시 실행되며 main 내의 resource 폴더 내 application.yml의 설정을 따른다. 마찬가지로 test 시에는 test 폴더내 로직들이 실행되며 test 폴더 내 yml 파일 존재 시 이것을 우선한 설정을 따른다.
+3. 기존에 설정된 datasource url을 (h2 db 사용시)  **jdbc:h2:mem:test**로 바꾸면 메모리 DB 사용이 가능하다.
+4. 하지만 스프링부트를 사용중이라면...yml에 아무 설정이 없으면 메모리DB로 동작한다. (gradle에 h2 있는 가정하에)
+
+
+
+상품 도메인 개발
+
+상품 도메인에는 수량(stockQuantity) 필드가 존재함. 이 **수량에 관한 비지니스 로직은** 다른 서비스 클래스에 만드는 것보다 **상품 클래스 내에 만드는 것이** 좋다. 즉, **도메인 주소 설계시** 엔티티 **자체** 내에서 **해결할 수 있는 것**들은 **엔티티 내에 비지니스 로직을 생성하는 것**이 객체지향적으로 **옳은 설계**이다. 그렇게 해야 응집력이 높아진다.
+
+
+
+```java
+public void save(Item item){
+    if(item.getId() == null){
+        em.persist(item);
+    }else{
+        em.merge(item);
+    }
+}
+```
+
+Item은 JPA에 저장하기 전까지  id가 존재하지 않는다. (=완전히 새로 생성한 객체)
+
+- 존재하지 않으면 DB에 처음 넣는 것
+- 존재하면 update를 해야함. EntityManager가 제공하는 merge가 이와 비슷한 역할
