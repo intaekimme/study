@@ -83,7 +83,9 @@ find에 해당하는 것이 find, find 시에는 Entity와 해당 Entity의 id�
 
 ------
 
-22.06.24
+## 22.06.24
+
+### 회원 도메인 개발
 
 jpql 형식 : 쿼리, 반환타입으로 구성
 
@@ -164,7 +166,7 @@ JUnit 테스트만 하려고 하는데 DB를 연결하고 이런 작업은 좀 �
 
 
 
-상품 도메인 개발
+### 상품 도메인 개발
 
 상품 도메인에는 수량(stockQuantity) 필드가 존재함. 이 **수량에 관한 비지니스 로직은** 다른 서비스 클래스에 만드는 것보다 **상품 클래스 내에 만드는 것이** 좋다. 즉, **도메인 주소 설계시** 엔티티 **자체** 내에서 **해결할 수 있는 것**들은 **엔티티 내에 비지니스 로직을 생성하는 것**이 객체지향적으로 **옳은 설계**이다. 그렇게 해야 응집력이 높아진다.
 
@@ -184,3 +186,35 @@ Item은 JPA에 저장하기 전까지  id가 존재하지 않는다. (=완전히
 
 - 존재하지 않으면 DB에 처음 넣는 것
 - 존재하면 update를 해야함. EntityManager가 제공하는 merge가 이와 비슷한 역할
+
+
+
+### 주문 도메인 개발
+
+주문의 경우 내부가 매우 복잡함 -> 복잡한 생성의 경우 별도의 생성관련 함수가 있으면 개발에 편리함.
+
+```java
+//==생성 메서드==/
+    public static Order createOrder(Member member, Delivery delivery, OrderItem... orderItems) 		{
+        Order order = new Order();
+        order.setMember(member);    //  주문한 사람
+        order.setDelivery(delivery);    //  주문 내역   
+        for (OrderItem orderItem : orderItems) {    // 주문 상품    
+            order.addOrderItem(orderItem);
+        }
+        order.setStaus(OrderStaus.ORDER);   //  주문 상태 
+        order.setOrderDate(LocalDateTime.now());    //  주문 날짜
+        return order;
+    }
+```
+
+
+
+- 주문 서비스
+  1. 어디까지 cascade?  종속된 것이 하나의 주인만을 private 하게 가질 때 cascade를 사용할 수 있다. 참조를 여러개가 한다면 cascade로 변화시 파급효과가 크고 오류 발생 가능성이 높아진다.
+  2. 지정한 생성 방법 외 다른 생성을 막는 방법
+     - JPA는 protected까지 생성자를 만들 수 있게 해줌. 그래서 protected를 사용하면 됨
+     - @NoArgsConstructor(access = AccessLevel.PROTECTED)로 어노테이션을 이용해 설정 가능
+  3. 디자인 패턴
+     - 도메인 모델 패턴 : 서비스 계층은 엔티티에 필요한 요청을 위임하는 역할, 엔티티가 비즈니스 로직을 가지고 있음
+     - 트랜잭션 스크립트 패턴 : 서비스 계층에 대부분의 비즈니스 로직을 처리하는 것
