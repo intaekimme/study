@@ -3,7 +3,7 @@ package jpabook.jpashop.service;
 import jpabook.jpashop.domain.Address;
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.domain.Order;
-import jpabook.jpashop.domain.OrderStaus;
+import jpabook.jpashop.domain.OrderStatus;
 import jpabook.jpashop.domain.item.Book;
 import jpabook.jpashop.domain.item.Item;
 import jpabook.jpashop.exception.NotEnoughStockException;
@@ -43,7 +43,7 @@ public class OrderServiceTest {
 
         //then
         Order getOrder = orderRepository.findOne(orderId);
-        assertEquals("상품 주문시 상태는 ORDER", OrderStaus.ORDER, getOrder.getStaus());
+        assertEquals("상품 주문시 상태는 ORDER", OrderStatus.ORDER, getOrder.getStatus());
         assertEquals("주문 상품 종류 수가 정확해야 한다.", 1, getOrder.getOrderItems().size());
         assertEquals("주문 가격은 가격 * 수량이다.", 10000 * 2, getOrder.getTotalPrice());
         assertEquals("주문 수량만큼 재고가 줄어야 한다.", 8, item.getStockQuantity());
@@ -79,7 +79,7 @@ public class OrderServiceTest {
 
         //then
         Order getOrder = orderRepository.findOne(orderId);
-        assertEquals("주문 취소시 상태는 CANCEL 이다.", OrderStaus.CANCEL, getOrder.getStaus());
+        assertEquals("주문 취소시 상태는 CANCEL 이다.", OrderStatus.CANCEL, getOrder.getStatus());
         assertEquals("주문이 취소된 상품은 그만큼 재고가 증가해야 한다.", 10, item.getStockQuantity());
     }
 
