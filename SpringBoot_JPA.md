@@ -226,19 +226,59 @@ Item은 JPA에 저장하기 전까지  id가 존재하지 않는다. (=완전히
 22.06.25
 
 1. 주문 검색 기능 개발
+
    - JPA에서 동적쿼리를 어떻게 사용할 것인가?
+
    - 동적쿼리 사용 경우 
+
      1. 검색 내용으로 검색을 하는 경우
      2. 필터를 이용해 검색하는 경우
+
    - 그럼 JPA에서 동적쿼리는 어떻게?
+
      1. [JPQL](https://ict-nroo.tistory.com/116)
      2. JPA Criteria
      3. Querydsl
+
    - 1, 2는 JPA 공식 스펙 하지만...현업에서 사용하기에는 너무 복잡하다
+
    - 3인 Querydsl이 코드 생산 시간을 줄여주고 재사용성을 높여주기에 현업에서는 이것을 사용한다. 
-   - 
+
+   - Querydsl 코드로 작성한 findAll함수
+
+     ```java
+     public List<Order> findAll(OrderSearch orderSearch) {
+         QOrder order = QOrder.order;
+         QMember member = QMember.member;
+     
+         return query
+                 .select(order)
+                 .from(order)
+                 .join(order.member, member)
+                 .where(statusEq(orderSearch.getOrderStatus()),
+                         nameLike(orderSearch.getMemberName()))
+                 .limig(1000)
+                 .fetch();
+     }
+     
+     private BooleanExpression statusEq(OrderStatus statusCond) {
+         if(statusCond == null) {
+             return null;
+         }
+         return order.status.eq(statusCond);
+     }
+     
+     private BooleanExpression nameLike(String nameCond) {
+         if(!StringUtils.hasText(nameCond)){
+             return null;
+         }
+         return member.name.like(nameCond);
+     }
+     ```
 
 
+
+### 웹 계층 개발
 
 
 
