@@ -280,7 +280,21 @@ Item은 JPA에 저장하기 전까지  id가 존재하지 않는다. (=완전히
 
 ### 웹 계층 개발
 
+1. 회원 등록
 
+   1. Springboot 2.3 이후로 부터는 `validation`을 지원하지 않아 직접 injection을 해주어야 함.
+
+   ```java
+   implementation 'org.springframework.boot:spring-boot-starter-validation'
+   ```
+
+   build.gradle에 다음으로 주입이 가능하다.
+
+   - `@NotEmpty` 을 통해 값이 비어있으면 오류가 발생하도록 할 수 있다.
+   - `@Valid` 를 통해 validation을 확인해 줄 수 있다. 
+
+  		2. BindingResult
+       - 컨트롤러 단에서 오류 발생 시 원래는 거기서 중단되는데 BindingResult를 사용하면 오류가 담겨서 실행이 됨.
 
 ------
 
